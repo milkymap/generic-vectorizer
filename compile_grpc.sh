@@ -5,7 +5,7 @@
 set -e
 
 # Navigate to the src directory
-cd quick_embed
+cd generic_vectorizer
 
 # Check if grpcio-tools is installed
 if ! python -c "import grpc_tools" &> /dev/null; then

@@ -1,6 +1,0 @@
-from .client import AsyncQuickEmbedClient
-
-from embedding_server.grpc_server.interfaces.strategies_pb2 import TextBatchEmbeddingRequest, TextEmbeddingRequest
-from embedding_server.grpc_server.interfaces.strategies_pb2 import TextBatchEmbeddingResponse, TextEmbeddingResponse
-from embedding_server.grpc_server.interfaces.strategies_pb2 import TextRerankScoresRequest, TextRerankScoresResponse
-
