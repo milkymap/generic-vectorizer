@@ -1,0 +1,57 @@
+syntax = "proto3"; 
+
+package TextSemanticEmbedding;
+
+service TextEmbedding {
+    rpc getTextEmbedding(TextEmbeddingRequest) returns (TextEmbeddingResponse) {}
+    rpc getTextBatchEmbedding(TextBatchEmbeddingRequest) returns (TextBatchEmbeddingResponse) {}
+    rpc getTextRerankScores(TextRerankScoresRequest) returns (TextRerankScoresResponse) {}
+}
+
+message Embedding {
+    repeated float dense_values = 1;
+    map<string, float> sparse_values = 2;
+}
+
+message TextEmbeddingRequest {
+    string embed_strategy = 1;
+    string target_topic = 2;
+    string text = 3;
+    int32 chunk_size = 4;
+    bool return_dense = 5;
+    bool return_sparse = 6;
+}
+
+message TextEmbeddingResponse {
+    bool status = 1;
+    optional string error = 2;
+    Embedding embedding = 3;
+}
+
+message TextBatchEmbeddingRequest {
+    string embed_strategy = 1;
+    string target_topic = 2;
+    repeated string texts = 3; 
+    int32 chunk_size = 4;
+    bool return_dense = 5;
+    bool return_sparse = 6;
+}
+
+message TextBatchEmbeddingResponse {
+    bool status = 1;
+    optional string error = 2;
+    repeated Embedding embeddings = 3;
+}
+
+message TextRerankScoresRequest {
+    string query = 1;
+    string target_topic = 2;
+    repeated string corpus = 3;
+    bool normalize = 4;
+}
+
+message TextRerankScoresResponse {
+    bool status = 1;
+    optional string error = 2;
+    repeated float scores = 3;
+}
