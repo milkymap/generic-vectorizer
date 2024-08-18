@@ -1,7 +1,6 @@
 import click 
 import asyncio
 
-from .settings.grpc_server_settings import GRPCServerSettings
 from .runner import Runner
 from .log import logger 
 from .model_schema import EmbedderModelConfig, EmbedderModelType
@@ -16,17 +15,14 @@ from time import perf_counter
 @click.pass_context
 def handler(ctx:click.core.Context):
     ctx.ensure_object(dict)
-    ctx.obj['grpc_server_settings'] = GRPCServerSettings() 
 
 
 @handler.command()
+@click.option('--grpc_server_address', default='localhost:1200')
 @click.pass_context
-def launch_client(ctx:click.core.Context):
-    grpc_server_settings = ctx.obj['grpc_server_settings']
+def launch_client(ctx:click.core.Context, grpc_server_address:str):
     async def main():
-        quick_embed_client = AsyncQuickEmbedClient(
-            grpc_server_settings=grpc_server_settings
-        )
+        quick_embed_client = AsyncQuickEmbedClient(grpc_server_address=grpc_server_address)
 
         query = """Jean Castex, former French Prime Minister, is becoming head of RATP (Paris public transport). His main challenges:
 
