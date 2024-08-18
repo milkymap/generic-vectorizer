@@ -21,13 +21,14 @@ The QuickEmbed system consists of three main components: the gRPC server, the ba
 graph TD
     A[Client] -->|gRPC| B[gRPC Server]
     B -->|ZeroMQ| C[Broker]
-    C -->|ZeroMQ| D[Router]
-    D -->|ZeroMQ| E[Worker 1]
-    D -->|ZeroMQ| F[Worker 2]
-    D -->|ZeroMQ| G[Worker N]
-    E -->|Process| H[Embedding Model]
-    F -->|Process| I[Reranking Model]
-    G -->|Process| J[Other Models]
+    C -->|ZeroMQ| D[Embedding Router]
+    C -->|ZeroMQ| E[Reranker Router]
+    D -->|ZeroMQ| F[Embedding Worker 1]
+    D -->|ZeroMQ| G[Embedding Worker 2]
+    E -->|ZeroMQ| H[Reranker Worker]
+    F -->|Process| I[Embedding Model 1]
+    G -->|Process| J[Embedding Model 2]
+    H -->|Process| K[Reranking Model]
 ```
 
 1. The client sends requests to the gRPC server.
