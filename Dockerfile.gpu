@@ -1,0 +1,32 @@
+# base image derivation 
+FROM nvcr.io/nvidia/pytorch:24.01-py3
+
+# initial argument and env 
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Paris
+
+# setup required config 
+RUN apt-get update --fix-missing && \
+    apt-get install --yes --no-install-recommends \
+         tzdata dialog apt-utils \ 
+         gcc pkg-config git curl build-essential \
+         ffmpeg libsm6 libxext6 libpcre3 libpcre3-dev python3.10-venv
+
+# define new user 
+RUN useradd --gid root --create-home solver 
+WORKDIR /home/solver
+
+ENV VIRTUAL_ENV=/opt/venv 
+RUN chmod -R g+rwx /home/solver && python -m venv $VIRTUAL_ENV 
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+COPY requirements.txt ./ 
+
+RUN pip install --upgrade pip && pip install -r requirements.txt 
+
+COPY . ./
+EXPOSE 5000
+
+# entrypoint 
+ENTRYPOINT ["python", "-m", "generic_vectorizer"]
+CMD ["--help"]

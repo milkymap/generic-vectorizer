@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "generic_vectorizer"
+version = "0.1.0"
+description = "A high-performance, distributed text embedding and reranking system based on FlagEmbedding"
+readme = "README.md"
+authors = [{name = "Ibrahima Khalil BA", email = "ibrahima.elmokhtar@gmail.com"}]
+license = {file = "LICENSE"}
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+keywords = ["embedding", "reranking", "nlp", "machine learning", "bge-m3"]
+dependencies = [
+    "click",
+    "pyzmq",
+    "grpcio-tools",
+    "FlagEmbedding",
+    "pydantic",
+    "peft",
+]
+requires-python = ">=3.8"
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.urls]
+Homepage = "https://github.com/milkymap/generic-vectorizer"
+
+[project.scripts]
+generic-vectorizer = "generic_vectorizer.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["generic_vectorizer*"]
+exclude = ["experiments*", "tests*"]
