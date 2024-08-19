@@ -1,11 +1,11 @@
-# QuickEmbed
+# Generic Vectorizer
 
-QuickEmbed is a high-performance, distributed text embedding and reranking system built with Python, gRPC, and ZeroMQ. It provides efficient processing of text embedding and reranking tasks using state-of-the-art models.
+Generic Vectorizer is a high-performance, distributed text embedding and reranking system built with Python, gRPC, and ZeroMQ. It provides efficient processing of text embedding and reranking tasks using state-of-the-art models.
 
 ## Table of Contents
 
-- [Architecture](#architecture)
 - [Features](#features)
+- [Architecture](#architecture)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Configuration](#configuration)
@@ -13,9 +13,19 @@ QuickEmbed is a high-performance, distributed text embedding and reranking syste
 - [Contributing](#contributing)
 - [License](#license)
 
+## Features
+
+- Distributed processing of text embedding and reranking tasks
+- Support for multiple embedding and reranking models
+- High-performance communication using gRPC and ZeroMQ
+- Easy scaling of workers for different model types
+- Configurable settings for fine-tuning performance
+- Support for both dense and sparse embeddings
+- Efficient chunking and aggregation of long texts
+
 ## Architecture
 
-The QuickEmbed system consists of three main components: the gRPC server, the background workers, and the client. Here's a high-level overview of the architecture:
+Generic Vectorizer consists of three main components: the gRPC server, the background workers, and the client. Here's a high-level overview of the architecture:
 
 ```mermaid
 graph TD
@@ -40,21 +50,13 @@ graph TD
 
 This architecture allows for efficient distribution of work and easy scaling of workers for different model types.
 
-## Features
-
-- Distributed processing of text embedding and reranking tasks
-- Support for multiple embedding and reranking models
-- High-performance communication using gRPC and ZeroMQ
-- Easy scaling of workers for different model types
-- Configurable settings for fine-tuning performance
-
 ## Installation
 
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/quick-embed.git
-cd quick-embed
+git clone https://github.com/yourusername/generic-vectorizer.git
+cd generic-vectorizer
 ```
 
 2. Install the required dependencies:
@@ -71,52 +73,156 @@ pip install -r requirements.txt
 
 ## Usage
 
-1. Start the QuickEmbed server:
+### AsyncEmbeddingClient
 
-```bash
-python -m quick_embed
-```
+The `AsyncEmbeddingClient` class provides the following methods:
 
-2. In your application, use the QuickEmbed client to send requests:
-
-```python
-from quick_embed.client import QuickEmbedClient
-
-client = QuickEmbedClient("localhost:50051")
-
-# Get text embedding
-embedding = client.get_text_embedding("Your text here")
-
-# Get batch text embeddings
-batch_embeddings = client.get_batch_text_embeddings(["Text 1", "Text 2", "Text 3"])
-
-# Get rerank scores
-rerank_scores = client.get_rerank_scores("Query", ["Document 1", "Document 2", "Document 3"])
-```
-
-## Configuration
-
-QuickEmbed can be configured using the following files:
-
-- `quick_embed/settings/app_settings.py`: General application settings
-- `quick_embed/settings/grpc_server_settings.py`: gRPC server settings
-
-You can modify these files to adjust the behavior of the system, such as changing the number of workers, model configurations, or communication settings.
-
-## API Reference
-
-### QuickEmbedClient
-
-- `get_text_embedding(text: str) -> List[float]`
+- `get_embedding(text: str, embed_strategy: str, target_topic: str, chunk_size: int = 512, return_dense: bool = True, return_sparse: bool = False) -> Dict`
+  
   Get the embedding for a single text.
 
-- `get_batch_text_embeddings(texts: List[str]) -> List[List[float]]`
+- `get_batch_embedding(texts: List[str], embed_strategy: str, target_topic: str, chunk_size: int = 512, return_dense: bool = True, return_sparse: bool = False) -> List[Dict]`
+  
   Get embeddings for a batch of texts.
 
-- `get_rerank_scores(query: str, documents: List[str]) -> List[float]`
+- `get_rerank_scores(query: str, corpus: List[str], target_topic: str, normalize: bool = True) -> List[float]`
+  
   Get rerank scores for a query and a list of documents.
 
-For more detailed API information, please refer to the source code and comments in the `quick_embed/client/client.py` file.
+Each method returns a dictionary or list of dictionaries containing the requested embeddings or scores.
+
+For more detailed API information, including the structure of the request and response objects, please refer to the source code and comments in the `generic_vectorizer/client/client.py` file.
+
+### Using the Generic Vectorizer Client
+
+Here's a basic example of how to use the Generic Vectorizer client:
+
+```python
+import asyncio
+from generic_vectorizer.client import AsyncEmbeddingClient
+
+async def main():
+    client = AsyncEmbeddingClient(grpc_server_address="localhost:1200")
+
+    # Get embedding for a single text
+    embedding = await client.get_embedding(
+        text="Your text here",
+        embed_strategy="BGE_M3_EMBEDDING_MODEL",
+        target_topic='bge_m3',
+        chunk_size=512,
+        return_dense=True,
+        return_sparse=True
+    )
+    print("Single text embedding:", embedding)
+
+    # Get embeddings for a batch of texts
+    batch_embeddings = await client.get_batch_embedding(
+        texts=["Text 1", "Text 2", "Text 3"],
+        embed_strategy="BGE_M3_EMBEDDING_MODEL",
+        target_topic='bge_m3',
+        chunk_size=512,
+        return_dense=True,
+        return_sparse=True
+    )
+    print("Batch embeddings:", batch_embeddings)
+
+    # Get rerank scores
+    rerank_scores = await client.get_rerank_scores(
+        query="Your query here",
+        corpus=["Document 1", "Document 2", "Document 3"],
+        target_topic='bge_reranker',
+        normalize=True
+    )
+    print("Rerank scores:", rerank_scores)
+
+asyncio.run(main())
+```
+
+## Configuration of the server
+
+Generic Vectorizer can be configured using the `EmbedderModelConfig` class. Here's an example configuration:
+
+```python
+from generic_vectorizer import Vectorizer
+from generic_vectorizer.typing import EmbedderModelConfig, EmbedderModelType
+
+embedder_model_configs = [
+    EmbedderModelConfig(
+        embedder_model_type=EmbedderModelType.BGE_M3_EMBEDDING_MODEL,
+        target_topic='bge_m3',
+        nb_instances=3,
+        options={
+            'model_name_or_path': 'BAAI/bge-m3',
+            'device': 'cuda:0'
+        }
+    ),
+    EmbedderModelConfig(
+        embedder_model_type=EmbedderModelType.BGE_RERANKER_MODEL,
+        target_topic='bge_reranker',
+        nb_instances=1,
+        options={
+            'model_name_or_path': 'BAAI/bge-reranker-v2-m3',
+            'device': 'cpu'
+        },
+        zmq_tcp_address='tcp://*:8500'
+    )
+]
+
+vectorizer = Vectorizer(
+    grpc_server_address='[::]:1200', 
+    embedder_model_configs=embedder_model_configs,
+    max_concurrent_requests=1024,
+    request_timeout=30
+)
+vectorizer.listen()
+```
+
+## Launching the Server
+
+Generic Vectorizer now supports configuration via a JSON file. This allows for easy customization of server settings and model configurations.
+
+### Configuration File Structure
+
+Create a `config.json` file with the following structure:
+
+```json
+{
+  "grpc_server_address": "[::]:5000",
+  "max_concurrent_requests": 1024,
+  "request_timeout": 30,
+  "embedder_model_configs": [
+    {
+      "embedder_model_type": "BGE_M3_EMBEDDING_MODEL",
+      "target_topic": "bge_m3",
+      "nb_instances": 3,
+      "options": {
+        "model_name_or_path": "BAAI/bge-m3",
+        "device": "cuda:0"
+      }
+    },
+    {
+      "embedder_model_type": "BGE_RERANKER_MODEL",
+      "target_topic": "bge_reranker",
+      "nb_instances": 1,
+      "options": {
+        "model_name_or_path": "BAAI/bge-reranker-v2-m3",
+        "device": "cpu"
+      },
+      "zmq_tcp_address": "tcp://*:8500"
+    }
+  ]
+}
+```
+
+### Launching the Server
+
+To launch the Generic Vectorizer server with your configuration:
+
+```bash
+python -m generic_vectorizer launch-engine --config path/to/your/config.json
+```
+
+This command will read the configuration from the specified JSON file and start the server with the provided settings.
 
 ## Contributing
 
