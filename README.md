@@ -117,7 +117,6 @@ async def main():
     # Get embedding for a single text
     embedding = await client.get_embedding(
         text="Your text here",
-        embed_strategy="BGE_M3_EMBEDDING_MODEL",
         target_topic='bge_m3',
         chunk_size=512,
         return_dense=True,
@@ -128,7 +127,6 @@ async def main():
     # Get embeddings for a batch of texts
     batch_embeddings = await client.get_batch_embedding(
         texts=["Text 1", "Text 2", "Text 3"],
-        embed_strategy="BGE_M3_EMBEDDING_MODEL",
         target_topic='bge_m3',
         chunk_size=512,
         return_dense=True,
