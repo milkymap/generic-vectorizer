@@ -8,10 +8,20 @@ Generic Vectorizer is a high-performance, distributed text embedding and reranki
 - [Architecture](#architecture)
 - [Installation](#installation)
 - [Usage](#usage)
+  - [AsyncEmbeddingClient](#asyncembeddingclient)
+  - [Using the Generic Vectorizer Client](#using-the-generic-vectorizer-client)
 - [Configuration](#configuration)
-- [API Reference](#api-reference)
+  - [Server Configuration](#configuration-of-the-server)
+  - [Configuration File Structure](#configuration-file-structure)
+  - [Launching the Server](#launching-the-server)
+- [Docker Support](#docker-support)
+  - [Building Docker Images](#building-docker-images)
+  - [Running Docker Containers](#running-docker-containers)
+  - [Docker Compose (Optional)](#docker-compose-optional)
 - [Contributing](#contributing)
 - [License](#license)
+
+[Rest of the README content remains unchanged]
 
 ## Features
 
@@ -223,6 +233,72 @@ python -m generic_vectorizer launch-engine --config path/to/your/config.json
 ```
 
 This command will read the configuration from the specified JSON file and start the server with the provided settings.
+
+## Docker Support
+
+Generic Vectorizer can be run in Docker containers, with support for both GPU and CPU environments.
+
+### Building Docker Images
+
+1. For GPU support:
+   ```bash
+   docker build -f Dockerfile.gpu -t generic-vectorizer:gpu .
+   ```
+
+2. For CPU-only:
+   ```bash
+   docker build -f Dockerfile.cpu -t generic-vectorizer:cpu .
+   ```
+
+### Running Docker Containers
+
+To run the Generic Vectorizer in a Docker container, you need to mount your configuration file as a volume. 
+
+1. For GPU support:
+   ```bash
+   docker run --gpus all -v /path/to/your/config.json:/home/solver/config.json -p 5000:5000 generic-vectorizer:gpu launch-engine --config /home/solver/config.json
+   ```
+
+2. For CPU-only:
+   ```bash
+   docker run -v /path/to/your/config.json:/home/solver/config.json -p 5000:5000 generic-vectorizer:cpu launch-engine --config /home/solver/config.json
+   ```
+
+Replace `/path/to/your/config.json` with the actual path to your configuration file on the host machine.
+
+Note: The GPU version requires the NVIDIA Container Toolkit to be installed on your host system.
+
+### Docker Compose (Optional)
+
+For easier management, you can use Docker Compose. Create a `docker-compose.yml` file:
+
+```yaml
+version: '3'
+services:
+  generic-vectorizer:
+    image: generic-vectorizer:gpu  # or :cpu for CPU-only version
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./config.json:/home/solver/config.json
+    command: launch-engine --config /home/solver/config.json
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+```
+
+Then run:
+
+```bash
+docker-compose up
+```
+
+This setup assumes your `config.json` is in the same directory as the `docker-compose.yml` file.
+
 
 ## Contributing
 
