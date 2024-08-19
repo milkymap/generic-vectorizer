@@ -60,7 +60,7 @@ graph TD
 
 This architecture allows for efficient distribution of work and easy scaling of workers for different model types.
 
-## Installation
+## Installation from source
 
 1. Clone the repository:
 
@@ -72,6 +72,9 @@ cd generic-vectorizer
 2. Install the required dependencies:
 
 ```bash
+python -m venv env 
+source env/bin/activate 
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
@@ -82,6 +85,80 @@ pip install -r requirements.txt
 ```
 
 ## Usage
+
+### Installation from pip
+
+You can install Generic Vectorizer using pip:
+
+```bash
+pip install generic-vectorizer==0.1.0
+```
+
+This will install the latest version of Generic Vectorizer and its dependencies.
+
+### Basic Usage
+
+Here's a basic example of how to set up and launch a Generic Vectorizer server:
+
+```python
+from generic_vectorizer import Vectorizer
+from generic_vectorizer.typing import EmbedderModelType, EmbedderModelConfig
+
+def launch_server():
+    # Set up the cache directory for Hugging Face models
+    # export HF_HOME=/path/to/cache
+
+    embedder_model_configs = [
+        EmbedderModelConfig(
+            embedder_model_type=EmbedderModelType.BGE_M3_EMBEDDING_MODEL,
+            target_topic='bge_m3_embedding',
+            nb_instances=2,
+            options={
+                'model_name_or_path': 'BAAI/bge-m3',
+                'device': 'cuda:0'
+            },
+            zmq_tcp_address='tcp://*:8300'
+        ),
+        EmbedderModelConfig(
+            embedder_model_type=EmbedderModelType.BGE_RERANKER_MODEL,
+            target_topic='bge_reranker',
+            nb_instances=2,
+            options={
+                'model_name_or_path': 'BAAI/bge-reranker-v2-m3',
+                'device': 'cpu'
+            },
+            zmq_tcp_address='tcp://*:8400'
+        )
+    ]
+
+    vectorizer_server = Vectorizer(
+        grpc_server_address='[::]:5000',
+        embedder_model_configs=embedder_model_configs,
+        max_concurrent_requests=512,
+        request_timeout=30
+    )
+    vectorizer_server.listen()
+
+if __name__ == '__main__':
+    launch_server()
+```
+
+This script sets up a Generic Vectorizer server with two models:
+1. A BGE-M3 embedding model running on GPU
+2. A BGE reranker model running on CPU
+
+The server is configured to listen on port 5000 for gRPC requests, with a maximum of 512 concurrent requests and a 30-second timeout.
+
+To run the server, simply execute this script:
+
+```bash
+python your_script_name.py
+```
+
+Make sure to set the `HF_HOME` environment variable to specify the cache directory for Hugging Face models before running the script.
+
+For more detailed configuration options and advanced usage, please refer to the Configuration and API Reference sections of this documentation.
+
 
 ### AsyncEmbeddingClient
 
