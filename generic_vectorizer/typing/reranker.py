@@ -1,4 +1,4 @@
-from pydantic import Field, BaseModel, field_validator 
+from pydantic import Field, BaseModel, field_validator, ConfigDict 
 from typing import Optional
 
 bge_reranker_models = [
@@ -10,6 +10,8 @@ bge_reranker_models = [
 ]
 
 class FlagRerankerConfig(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
+
     model_name_or_path: str = Field(default='BAAI/bge-reranker-v2-m3')
     device: str = Field(default='cpu')
     use_fp16: bool = Field(default=True)

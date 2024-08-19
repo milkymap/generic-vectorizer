@@ -13,7 +13,7 @@ from generic_vectorizer.grpc_server.interfaces.strategies_pb2 import (
 from generic_vectorizer.grpc_server.interfaces import strategies_pb2_grpc
 from generic_vectorizer.log import logger 
 
-class AsyncQuickEmbedClient:
+class AsyncGRPCEmbeddingClient:
     def __init__(self, grpc_server_address: str):
         self.grpc_server_address = grpc_server_address
 
@@ -27,16 +27,15 @@ class AsyncQuickEmbedClient:
                 logger.error(e)
                 raise
 
-class EmbeddingClient:
+class AsyncEmbeddingClient:
     def __init__(self, grpc_server_address: str):
-        self.quick_embed_client = AsyncQuickEmbedClient(grpc_server_address)
+        self.quick_embed_client = AsyncGRPCEmbeddingClient(grpc_server_address)
 
-    async def get_embedding(self, text: str, embed_strategy: str, target_topic: str, 
+    async def get_embedding(self, text: str, target_topic: str, 
                             chunk_size: int = 512, return_dense: bool = True, 
                             return_sparse: bool = False) -> Dict:
         async with self.quick_embed_client.create_grpc_stub() as stub:
             request = TextEmbeddingRequest(
-                embed_strategy=embed_strategy,
                 target_topic=target_topic,
                 text=text,
                 chunk_size=chunk_size,
@@ -51,12 +50,11 @@ class EmbeddingClient:
                 "sparse": dict(response.embedding.sparse_values) if return_sparse else None
             }
 
-    async def get_batch_embedding(self, texts: List[str], embed_strategy: str, 
+    async def get_batch_embedding(self, texts: List[str], 
                                   target_topic: str, chunk_size: int = 512, 
                                   return_dense: bool = True, return_sparse: bool = False) -> List[Dict]:
         async with self.quick_embed_client.create_grpc_stub() as stub:
             request = TextBatchEmbeddingRequest(
-                embed_strategy=embed_strategy,
                 target_topic=target_topic,
                 texts=texts,
                 chunk_size=chunk_size,

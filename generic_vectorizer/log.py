@@ -5,4 +5,4 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-logger = logging.getLogger(name='grpc-llama')
+logger = logging.getLogger(name='grpc-embedding')

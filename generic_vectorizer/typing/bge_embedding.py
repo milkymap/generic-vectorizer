@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Literal
 
 bge_m3_models = [
@@ -11,6 +11,8 @@ bge_m3_models = [
 ]
 
 class BGEM3FlagModelConfig(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
+
     model_name_or_path: str = Field(default='BAAI/bge-m3')
     device: str = Field(default='cpu')
     use_fp16: bool = Field(default=True)

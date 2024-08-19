@@ -18,10 +18,9 @@ class EmbedderPool:
     def __init__(self, embedder_model_configs:List[EmbedderModelConfig]) -> None:
         assert len(embedder_model_configs) > 0, f"embedder_model_configs length must be grater then 0"
         self.embedder_model_configs = embedder_model_configs
-
         for config in embedder_model_configs:
             try:
-                attrgetter(config.embedder_model_type)(stratref)
+                assert attrgetter(config.embedder_model_type)(stratref) is not None, f'{config.embedder_model_type} is not a valid model type'
             except Exception as e:
                 logger.error(e)
                 exit(0)
@@ -39,6 +38,9 @@ class EmbedderPool:
         try:
             strategy = attrgetter(config.embedder_model_type)(stratref)
             action = self.build_strategy(strategy, config.options)
+        except KeyboardInterrupt:
+            logger.warning(f'{worker_id} cancelled...!')
+            exit(-1)
         except Exception as e:
             logger.error(e)
             exit(-1) 
@@ -56,23 +58,21 @@ class EmbedderPool:
             dealer_socket.connect(addr=broker2worker_addr)  # add topics based on the flag_model_type 
             socket_connected = True 
             logger.info(f'{worker_id} has performed the handshake with backend router')
+            dealer_socket.send_multipart([b'', b'HANDSHAKE', b'', b''])
+            logger.info(f'{worker_id} is running')
         except Exception as e:
             logger.error(e)
             if socket_connected: 
                 dealer_socket.close(linger=0)
             exit(-1)
 
-        dealer_socket.send_multipart([b'', b'HANDSHAKE', b'', b''])
-        logger.info(f'{worker_id} is running')
         
         while True:
             try:
                 incoming_signal = dealer_socket.poll(timeout=5000)
                 if incoming_signal != zmq.POLLIN:
                     continue
-
                 _, target_client_socket_id, encoded_task_type, encoded_client_message = dealer_socket.recv_multipart()
-                
                 try:
                     plain_worker_message = action.process(encoded_task_type, encoded_client_message)
                     encoded_worker_message = plain_worker_message.SerializeToString()  # add exception around action.process
@@ -85,6 +85,7 @@ class EmbedderPool:
                 logger.info(f'{worker_id} has consumed a message')   
                 dealer_socket.send_multipart([b'', b'HANDSHAKE', b'', b''])
             except KeyboardInterrupt:
+                logger.warning(f'{worker_id} cancelled...!')
                 break 
             except Exception as e:
                 logger.error(e)

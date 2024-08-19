@@ -21,20 +21,18 @@ class Embedding(_message.Message):
     def __init__(self, dense_values: _Optional[_Iterable[float]] = ..., sparse_values: _Optional[_Mapping[str, float]] = ...) -> None: ...
 
 class TextEmbeddingRequest(_message.Message):
-    __slots__ = ("embed_strategy", "target_topic", "text", "chunk_size", "return_dense", "return_sparse")
-    EMBED_STRATEGY_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("target_topic", "text", "chunk_size", "return_dense", "return_sparse")
     TARGET_TOPIC_FIELD_NUMBER: _ClassVar[int]
     TEXT_FIELD_NUMBER: _ClassVar[int]
     CHUNK_SIZE_FIELD_NUMBER: _ClassVar[int]
     RETURN_DENSE_FIELD_NUMBER: _ClassVar[int]
     RETURN_SPARSE_FIELD_NUMBER: _ClassVar[int]
-    embed_strategy: str
     target_topic: str
     text: str
     chunk_size: int
     return_dense: bool
     return_sparse: bool
-    def __init__(self, embed_strategy: _Optional[str] = ..., target_topic: _Optional[str] = ..., text: _Optional[str] = ..., chunk_size: _Optional[int] = ..., return_dense: bool = ..., return_sparse: bool = ...) -> None: ...
+    def __init__(self, target_topic: _Optional[str] = ..., text: _Optional[str] = ..., chunk_size: _Optional[int] = ..., return_dense: bool = ..., return_sparse: bool = ...) -> None: ...
 
 class TextEmbeddingResponse(_message.Message):
     __slots__ = ("status", "error", "embedding")
@@ -47,20 +45,18 @@ class TextEmbeddingResponse(_message.Message):
     def __init__(self, status: bool = ..., error: _Optional[str] = ..., embedding: _Optional[_Union[Embedding, _Mapping]] = ...) -> None: ...
 
 class TextBatchEmbeddingRequest(_message.Message):
-    __slots__ = ("embed_strategy", "target_topic", "texts", "chunk_size", "return_dense", "return_sparse")
-    EMBED_STRATEGY_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("target_topic", "texts", "chunk_size", "return_dense", "return_sparse")
     TARGET_TOPIC_FIELD_NUMBER: _ClassVar[int]
     TEXTS_FIELD_NUMBER: _ClassVar[int]
     CHUNK_SIZE_FIELD_NUMBER: _ClassVar[int]
     RETURN_DENSE_FIELD_NUMBER: _ClassVar[int]
     RETURN_SPARSE_FIELD_NUMBER: _ClassVar[int]
-    embed_strategy: str
     target_topic: str
     texts: _containers.RepeatedScalarFieldContainer[str]
     chunk_size: int
     return_dense: bool
     return_sparse: bool
-    def __init__(self, embed_strategy: _Optional[str] = ..., target_topic: _Optional[str] = ..., texts: _Optional[_Iterable[str]] = ..., chunk_size: _Optional[int] = ..., return_dense: bool = ..., return_sparse: bool = ...) -> None: ...
+    def __init__(self, target_topic: _Optional[str] = ..., texts: _Optional[_Iterable[str]] = ..., chunk_size: _Optional[int] = ..., return_dense: bool = ..., return_sparse: bool = ...) -> None: ...
 
 class TextBatchEmbeddingResponse(_message.Message):
     __slots__ = ("status", "error", "embeddings")

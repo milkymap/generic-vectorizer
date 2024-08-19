@@ -50,7 +50,6 @@ class Vectorizer:
         for address in zmq_tcp_addresses:
             if not re.match(r'^tcp://\*:\d+$', address):
                 raise ValueError(f"Invalid ZeroMQ TCP address format: {address}. Must be in the format 'tcp://*:port_number'")
-            
             port = int(address.split(':')[-1])
             if not self.is_port_available(port):
                 raise ValueError(f"Port {port} is not available for address: {address}")

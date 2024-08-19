@@ -14,12 +14,11 @@ message Embedding {
 }
 
 message TextEmbeddingRequest {
-    string embed_strategy = 1;
-    string target_topic = 2;
-    string text = 3;
-    int32 chunk_size = 4;
-    bool return_dense = 5;
-    bool return_sparse = 6;
+    string target_topic = 1;
+    string text = 2;
+    int32 chunk_size = 3;
+    bool return_dense = 4;
+    bool return_sparse = 5;
 }
 
 message TextEmbeddingResponse {
@@ -29,12 +28,11 @@ message TextEmbeddingResponse {
 }
 
 message TextBatchEmbeddingRequest {
-    string embed_strategy = 1;
-    string target_topic = 2;
-    repeated string texts = 3; 
-    int32 chunk_size = 4;
-    bool return_dense = 5;
-    bool return_sparse = 6;
+    string target_topic = 1;
+    repeated string texts = 2; 
+    int32 chunk_size = 3;
+    bool return_dense = 4;
+    bool return_sparse = 5;
 }
 
 message TextBatchEmbeddingResponse {

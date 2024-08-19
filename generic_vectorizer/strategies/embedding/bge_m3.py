@@ -36,7 +36,7 @@ class BGEM3FlagModelStrategy(ABCStrategy):
             accumulator.append(text_chunk)
         
         if len(accumulator) == 0:
-            accumulator.append(' ')
+            accumulator = [text]
 
         return accumulator
 
@@ -56,7 +56,6 @@ class BGEM3FlagModelStrategy(ABCStrategy):
             plain_message = TextEmbeddingRequest()
             plain_message.ParseFromString(encoded_message)
             assert plain_message.return_dense | plain_message.return_sparse == True, f'one of [return_dense or return_sparse] was not set!'
-            
             sentences = self.to_chunks(text=plain_message.text, chunk_size=plain_message.chunk_size)
             embeddings_hmap:Dict = self.model.encode(sentences=sentences, return_dense=plain_message.return_dense, return_sparse=plain_message.return_sparse)
             dense_embeddings:Optional[NDArray] = embeddings_hmap.get('dense_vecs', None)
