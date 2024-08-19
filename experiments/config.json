@@ -1,0 +1,26 @@
+{
+    "grpc_server_address": "[::]:5000",
+    "max_concurrent_requests": 1024,
+    "request_timeout": 30,
+    "embedder_model_configs": [
+      {
+        "embedder_model_type": "BGE_M3_EMBEDDING_MODEL",
+        "target_topic": "bge_m3",
+        "nb_instances": 2,
+        "options": {
+          "model_name_or_path": "BAAI/bge-m3",
+          "device": "cuda:0"
+        }
+      },
+      {
+        "embedder_model_type": "BGE_RERANKER_MODEL",
+        "target_topic": "bge_reranker",
+        "nb_instances": 1,
+        "options": {
+          "model_name_or_path": "BAAI/bge-reranker-v2-m3",
+          "device": "cpu"
+        },
+        "zmq_tcp_address": "tcp://*:8500"
+      }
+    ]
+}
